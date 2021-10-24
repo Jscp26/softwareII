@@ -4,6 +4,9 @@ import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ch.qos.logback.core.joran.util.beans.BeanUtil;
 import net.software.backendcursojava.UserRepository;
@@ -16,6 +19,9 @@ public class UserService implements  UserServiceInterface{
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    BCryptPasswordEncoder bCryptPasswordEncoder;
+
 
     @Override
     public UserDTO createUser(UserDTO userDTO) {
@@ -26,7 +32,8 @@ public class UserService implements  UserServiceInterface{
         UserEntity userEntity =new UserEntity();
         BeanUtils.copyProperties(userDTO, userEntity);
 
-        userEntity.setEncryptedPassword("testpassword");
+        userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
+
         UUID userId= UUID.randomUUID();
         userEntity.setUserId(userId.toString());
         
@@ -39,6 +46,12 @@ public class UserService implements  UserServiceInterface{
 
 
         return userToReturn;
+    }
+
+
+    @Override
+    public UserDetails loadUserByUsername(String arg0) throws UsernameNotFoundException {
+        return null;
     }
 
     
